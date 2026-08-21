@@ -19,6 +19,9 @@ func (q *Queue) ClaimContext(ctx context.Context, worker string) (JobView, error
 	if q.closed {
 		return JobView{}, ErrClosed
 	}
+	if q.clk == nil {
+		return JobView{}, ErrNoClock
+	}
 
 	if worker == "" {
 		return JobView{}, ErrInvalid
