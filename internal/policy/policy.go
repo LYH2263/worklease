@@ -15,8 +15,12 @@ func Default() Policy {
 }
 
 func (p Policy) WaitClaim(ctx context.Context) error {
-	_ = ctx
-	return nil
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return nil
+	}
 }
 
 func (p Policy) WaitHeartbeat(ctx context.Context) error {

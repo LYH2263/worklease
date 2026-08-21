@@ -23,7 +23,17 @@ func (q *Queue) ClaimContext(ctx context.Context, worker string) (JobView, error
 	if worker == "" {
 		return JobView{}, ErrInvalid
 	}
+	// 已取消的 ctx 不得继续发放任务：否则取消信号被忽略，
+	// 超时重试会把同一 payload 派给两个 worker。
+	if err := ctx.Err(); err != nil {
+		return JobView{}, wrapCancel(err)
+	}
 	if err := q.pol.WaitClaim(ctx); err != nil {
+		return JobView{}, wrapCancel(err)
+	}
+	// WaitClaim 可能阻塞；唤醒后再次确认 ctx 仍未被取消，
+	// 避免在已取消路径上继续出队、占住租约。
+	if err := ctx.Err(); err != nil {
 		return JobView{}, wrapCancel(err)
 	}
 	if len(q.pending) == 0 {
