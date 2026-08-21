@@ -17,7 +17,7 @@ func (q *Queue) persistLocked() error {
 		snap.Inflight[k] = v
 	}
 	if err := q.persist.Save(snap); err != nil {
-		return nil
+		return wrapPersist(err)
 	}
 	return nil
 }

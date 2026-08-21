@@ -34,9 +34,16 @@ func (q *Queue) Heartbeat(ctx context.Context, id, worker string) error {
 	if q.clk.Now().After(j.LeaseUntil) {
 		return ErrExpired
 	}
+	prevLease := j.LeaseUntil
 	j.LeaseUntil = q.clk.Now().Add(q.opts.LeaseTTL)
 	j.State = job.Inflight
 	q.inflight[id] = j
+	if err := q.persistLocked(); err != nil {
+		// 持久化失败：还原旧租约，避免内存与磁盘不一致。
+		j.LeaseUntil = prevLease
+		q.inflight[id] = j
+		return err
+	}
 	q.metrics.IncHeartbeat()
-	return q.persistLocked()
+	return nil
 }

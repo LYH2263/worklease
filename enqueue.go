@@ -23,7 +23,8 @@ func (q *Queue) Enqueue(spec EnqueueSpec) error {
 	}
 	q.pending = append(q.pending, j)
 	if err := q.persistLocked(); err != nil {
-
+		// 持久化失败：回滚 pending，避免内存有、磁盘没有的「幽灵任务」。
+		q.pending = q.pending[:len(q.pending)-1]
 		return err
 	}
 	q.metrics.IncEnqueued()
