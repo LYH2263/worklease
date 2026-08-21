@@ -46,7 +46,7 @@ func (q *Queue) ClaimContext(ctx context.Context, worker string) (JobView, error
 	q.metrics.IncClaimed()
 	return JobView{
 		ID:         j.ID,
-		Payload:    j.Payload,
+		Payload:    job.CloneBytes(j.Payload),
 		Tags:       job.CloneTags(j.Tags),
 		Worker:     j.Worker,
 		LeaseUntil: j.LeaseUntil,

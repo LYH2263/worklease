@@ -1,7 +1,12 @@
 package job
 
 func CloneBytes(src []byte) []byte {
-	return src
+	if src == nil {
+		return nil
+	}
+	dst := make([]byte, len(src))
+	copy(dst, src)
+	return dst
 }
 
 func CloneTags(src []string) []string {
