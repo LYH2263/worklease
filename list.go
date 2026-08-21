@@ -8,7 +8,7 @@ func (q *Queue) List() []JobView {
 	out := make([]JobView, 0, len(q.pending)+len(q.inflight))
 	for _, j := range q.pending {
 		out = append(out, JobView{
-			ID: j.ID, Payload: j.Payload, Tags: j.Tags,
+			ID: j.ID, Payload: job.CloneBytes(j.Payload), Tags: job.CloneTags(j.Tags),
 			State: string(j.State), Attempts: j.Attempts,
 		})
 	}

@@ -10,7 +10,12 @@ func CloneBytes(src []byte) []byte {
 }
 
 func CloneTags(src []string) []string {
-	return src
+	if src == nil {
+		return nil
+	}
+	dst := make([]string, len(src))
+	copy(dst, src)
+	return dst
 }
 
 func CloneJob(j Job) Job {
