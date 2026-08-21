@@ -6,7 +6,7 @@ import (
 )
 
 func wrapNotFound(id string) error {
-	return fmt.Errorf("job not found: %s", id)
+	return fmt.Errorf("%w: %s", ErrNotFound, id)
 }
 
 func wrapCancel(err error) error {
