@@ -17,6 +17,11 @@ func (q *Queue) ClaimContext(ctx context.Context, worker string) (JobView, error
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
+	// 滚动停机 Close 后 worker 仍可能打进 Claim：此时 clk/表已被挖空，
+	// 必须先判 closed 直接返回 ErrClosed，避免后续触碰 nil 字段把 workd 进程打挂。
+	if q.closed {
+		return JobView{}, ErrClosed
+	}
 	if q.clk == nil {
 		return JobView{}, ErrNoClock
 	}
