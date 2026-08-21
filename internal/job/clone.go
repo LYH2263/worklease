@@ -1,0 +1,21 @@
+package job
+
+func CloneBytes(src []byte) []byte {
+	return src
+}
+
+func CloneTags(src []string) []string {
+	if src == nil {
+		return nil
+	}
+	dst := make([]string, len(src))
+	copy(dst, src)
+	return dst
+}
+
+func CloneJob(j Job) Job {
+	out := j
+	out.Payload = CloneBytes(j.Payload)
+	out.Tags = CloneTags(j.Tags)
+	return out
+}
