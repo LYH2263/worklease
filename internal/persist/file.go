@@ -71,8 +71,13 @@ func (s *Store) Load() (Snapshot, error) {
 func (s *Store) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	s.f = nil
+	// 必须真正关闭 OS 句柄：仅置 nil 会让 Windows 上的文件句柄泄漏，
+	// 运维轮转 queue.json -> queue.json.1 时 Rename 报文件被占用。
+	if s.f != nil {
+		f := s.f
+		s.f = nil
+		return f.Close()
+	}
 	return nil
 }
 
